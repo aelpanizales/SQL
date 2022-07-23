@@ -1,0 +1,48 @@
+*/ In this project, I pulled the data off of Kaggle. It is a dataset that includes data of NBA players, teams, saleries, and more. 
+In this project, I decided to take the point of view of a NBA scout. I wanted to analyze how to find the what college school produces the most successful players 
+in the NBA. */
+
+
+#1. What college currently has the most players in the NBA?
+SELECT SCHOOL, COUNT(SCHOOL)
+FROM Player p
+JOIN Player_Attributes pa
+ON p.full_name = pa.DISPLAY_FIRST_LAST
+WHERE is_active = 1
+GROUP BY SCHOOL ORDER BY COUNT(SCHOOL) DESC; 
+
+#2. What college produces the most All-Stars?
+SELECT SCHOOL, COUNT(ALL_STAR_APPEARANCES)
+FROM Player p
+JOIN Player_Attributes pa
+ON p.full_name = pa.DISPLAY_FIRST_LAST
+WHERE is_active = 1
+GROUP BY SCHOOL ORDER BY COUNT(ALL_STAR_APPEARANCES) DESC;
+
+#3. What schools have players active and retired that average 
+at least 15 pts, 3 ast and 2 reb with 5 years experience?
+SELECT SCHOOL, COUNT(SCHOOL)
+FROM Player p
+JOIN Player_Attributes pa
+ON p.full_name = pa.DISPLAY_FIRST_LAST
+WHERE PTS >= 15 AND AST >= 3 AND REB >= 2 AND SEASON_EXP >=5
+GROUP BY SCHOOL ORDER BY COUNT(SCHOOL) DESC;
+
+#4. What school had the most players get drafted in the first round?
+SELECT SCHOOL, COUNT(SCHOOL)
+FROM Player p
+JOIN Player_Attributes pa
+ON p.full_name = pa.DISPLAY_FIRST_LAST
+WHERE DRAFT_ROUND = 1
+GROUP BY SCHOOL ORDER BY COUNT(SCHOOL) DESC;
+
+#5. How many players were drafted each year from Kentucky from 2014 to 2019?
+SELECT SCHOOL, DRAFT_YEAR, COUNT(DRAFT_YEAR)
+FROM Player p
+JOIN Player_Attributes pa
+ON p.full_name = pa.DISPLAY_FIRST_LAST
+WHERE is_active = 1 AND SCHOOL = 'Kentucky' AND DRAFT_YEAR != 'Undrafted'
+GROUP BY DRAFT_YEAR ORDER BY (DRAFT_YEAR) DESC
+LIMIT 6;
+
+#6. Which school has seen increase in players drafted in the last 10 years?
