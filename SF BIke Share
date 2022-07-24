@@ -1,0 +1,42 @@
+*/ In this project, the dataset was pulled from Kaggle. I first queried some results to get an idea of what type of data would be useful then
+I am looking to see which bike stations are most popular. */
+
+#1. How many different stations are there in SF Bay?
+SELECT DISTINCT station_id
+FROM status;
+
+#2. Which how many docks are avaible at each station?
+SELECT id, dock_count
+FROM station
+ORDER BY dock_count DESC;
+
+#3. What and where are the most recently installed docks?
+SELECT id, city, installation_date
+FROM station
+ORDER BY installation_date ASC;
+
+#4. Which city has the most dock_stations?
+SELECT city, COUNT(id)
+FROM station
+GROUP BY city
+ORDER BY COUNT(id) DESC;
+
+#5. What stations currently have 0 bikes available?
+SELECT s.station_id, ss.city, ss.name, s.bikes_available, ss.dock_count
+FROM status s
+JOIN station ss
+ON s.station_id = ss.id
+WHERE bikes_available = 0 AND time LIKE '%2015-08-31%'
+GROUP BY station_id
+ORDER BY time DESC;
+
+
+#6. What stations are currently full?
+SELECT  s.station_id, ss.city, ss.name, s.bikes_available, ss.dock_count
+FROM status s
+JOIN station ss
+ON s.station_id = ss.id
+WHERE bikes_available = dock_count AND time LIKE '%2015-08-31%'
+GROUP BY station_id
+ORDER BY time DESC;
+
