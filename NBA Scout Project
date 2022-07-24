@@ -44,5 +44,3 @@ ON p.full_name = pa.DISPLAY_FIRST_LAST
 WHERE is_active = 1 AND SCHOOL = 'Kentucky' AND DRAFT_YEAR != 'Undrafted'
 GROUP BY DRAFT_YEAR ORDER BY (DRAFT_YEAR) DESC
 LIMIT 6;
-
-#6. Which school has seen increase in players drafted in the last 10 years?
