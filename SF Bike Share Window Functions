@@ -1,0 +1,89 @@
+SELECT * 
+FROM station;
+
+SELECT id, city, MAX(dock_count) as MAXdock
+FROM station
+GROUP BY city;
+
+SELECT a.*,
+MAX(dock_count) OVER(partition by city) as maxdocks
+FROM station a;
+
+SELECT a.*,
+MAX(dock_count) OVER(partition by city) as maxdocks
+FROM station a;
+
+--row_number, rank, dense_rank, lead ang lag
+
+SELECT a.*,
+ROW_NUMBER() OVER() as rn
+FROM station a;
+
+SELECT a.*,
+ROW_NUMBER() OVER(partition by city) as rn
+FROM station a;
+
+-- Identify the first 2 stations to be installed in each city
+
+SELECT a.id, name, city, installation_date,
+ROW_NUMBER() OVER(partition by city) as rn
+FROM station a;
+
+SELECT a.id, name, city, installation_date,
+ROW_NUMBER() OVER(partition by city ORDER BY installation_date) as rn
+FROM station a;
+
+--Final Answer
+
+SELECT * FROM 
+  (SELECT a.id, name, city, installation_date,
+  ROW_NUMBER() OVER(partition by city ORDER BY installation_date) as rn
+  FROM station a)
+WHERE rn < 3;
+
+-- Identify the top 3 stations with the most docks in each city
+
+SELECT a.*,
+RANK() OVER(partition by city ORDER BY dock_count DESC) as rnk
+FROM station a;
+
+--Final Answer
+
+SELECT id, name, dock_count, city, rnk FROM
+    (SELECT a.*,
+    RANK() OVER(partition by city ORDER BY dock_count DESC) as rnk
+    FROM station a)
+WHERE rnk < 4;
+
+--Rank vs Dense Rank vs Row Number
+
+SELECT a.*,
+RANK() OVER(partition by city ORDER BY dock_count DESC) as rnk,
+DENSE_RANK() OVER(partition by city ORDER BY dock_count DESC) as dense_rnk,
+ROW_NUMBER() OVER(partition by city ORDER BY dock_count DESC) as rn
+FROM station a;
+
+-- A query to display if the dock count of a city is higher, lower, or equal to the other city (lag vs lead)
+
+SELECT id, city, dock_count,
+LAG(dock_count) OVER (PARTITION BY city ORDER BY id) AS othercity
+FROM station s;
+
+SELECT id, city, dock_count,
+LAG(dock_count,2,0) OVER (PARTITION BY city ORDER BY id) AS othercity
+FROM station s;
+
+SELECT id, city, dock_count,
+LAG(dock_count) OVER (PARTITION BY city ORDER BY id) AS lagothercity,
+LEAD(dock_count) OVER (PARTITION BY city ORDER BY id) AS leadothercity
+FROM station s;
+
+--Final Answer
+
+SELECT id, city, dock_count,
+LAG(dock_count) OVER (PARTITION BY city ORDER BY id) AS othercity,
+CASE WHEN dock_count > LAG(dock_count) OVER (PARTITION BY city ORDER BY id) THEN 'Higher than previous city'
+    WHEN dock_count < LAG(dock_count) OVER (PARTITION BY city ORDER BY id) THEN 'Lower than previous city'
+    WHEN dock_count = LAG(dock_count) OVER (PARTITION BY city ORDER BY id) THEN 'Same than previous city'
+    END dockrange
+FROM station s;
