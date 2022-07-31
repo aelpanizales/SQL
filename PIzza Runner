@@ -29,3 +29,50 @@ SELECT
     END AS FLOAT),
   CASE WHEN cancellation = 'null' or cancellation = '' THEN NULL ELSE cancellation END
 FROM pizza_runner.runner_orders;
+
+
+How many pizzas were ordered?
+
+SELECT COUNT(order_id) as TotalPizzasOrdered
+FROM tmp_customer_orders;
+
+How many unique customer orders were made?
+
+SELECT COUNT(DISTINCT order_id) AS uniqueorders
+FROM tmp_customer_orders;
+
+How many successful orders were delivered by each runner?
+
+SELECT ro.runner_id, COUNT(DISTINCT ro.order_id) AS successful_orders
+FROM tmp_customer_orders co
+INNER JOIN tmp_runner_orders ro
+ON co.order_id = ro.order_id AND ro.distance IS NOT NULL
+GROUP BY ro.runner_id;
+
+How many of each type of pizza was delivered?
+
+SELECT pn.pizza_name, COUNT(*) AS total_delivered
+FROM tmp_customer_orders co
+JOIN tmp_runner_orders ro
+ON co.order_id = ro.order_id AND ro.duration IS NOT NULL
+JOIN pizza_runner.pizza_names pn
+ON co.pizza_id = pn.pizza_id
+GROUP BY pn.pizza_name
+
+How many Vegetarian and Meatlovers were ordered by each customer?
+
+SELECT co.customer_id, pn.pizza_name, COUNT(*) AS type_ordered
+FROM tmp_customer_orders co
+JOIN pizza_runner.pizza_names pn
+ON co.pizza_id = pn.pizza_id
+GROUP BY co.customer_id, pn.pizza_name
+ORDER BY co.customer_id;
+
+What was the maximum number of pizzas delivered in a single order?
+
+
+
+For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+How many pizzas were delivered that had both exclusions and extras?
+What was the total volume of pizzas ordered for each hour of the day?
+What was the volume of orders for each day of the week?
