@@ -70,9 +70,66 @@ ORDER BY co.customer_id;
 
 What was the maximum number of pizzas delivered in a single order?
 
-
+WITH pizzas_delivered_by_order AS (
+  SELECT
+	co.order_id,
+	COUNT(*) AS total_pizzas_delivered
+  FROM tmp_customer_orders co
+  INNER JOIN tmp_runner_orders ro
+	ON co.order_id = ro.order_id AND ro.distance IS NOT NULL
+  GROUP BY co.order_id
+),
+ranked_pizzas_delievered AS (
+	SELECT *, RANK() OVER(ORDER BY total_pizzas_delivered DESC)
+	FROM pizzas_delivered_by_order
+)
+SELECT
+  order_id,
+  total_pizzas_delivered
+FROM ranked_pizzas_delievered
+WHERE rank = 1;
 
 For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+
+SELECT
+  co.customer_id,
+  SUM(
+	  CASE
+	  	WHEN co.exclusions IS NULL or co.extras IS NULL THEN 1 ELSE 0
+	  END) AS toppings_changed,
+  SUM(
+	  CASE
+	  	WHEN co.exclusions IS NULL AND co.extras IS NULL THEN 1 ELSE 0
+	  END) AS toppings_not_changed
+FROM tmp_customer_orders co
+INNER JOIN tmp_runner_orders ro
+  ON co.order_id = ro.order_id AND ro.distance IS NOT NULL
+GROUP BY co.customer_id
+ORDER BY co.customer_id;
+
 How many pizzas were delivered that had both exclusions and extras?
+
+SELECT COUNT(*) AS pizza_with_exclusions_and_extras
+FROM tmp_customer_orders co
+INNER JOIN tmp_runner_orders ro
+  ON co.order_id = ro.order_id AND ro.distance IS NOT NULL
+WHERE co.exclusions IS NOT NULL
+  AND co.extras IS NOT NULL;
+
 What was the total volume of pizzas ordered for each hour of the day?
+
+SELECT
+  EXTRACT(HOUR FROM order_time) AS order_hour,
+  COUNT(*) AS total_orders
+FROM tmp_customer_orders
+GROUP BY EXTRACT(HOUR FROM order_time)
+ORDER BY total_orders DESC;
+
 What was the volume of orders for each day of the week?
+
+SELECT
+  TO_CHAR(order_time, 'DAY') AS order_day,
+  COUNT(*) AS total_orders
+FROM tmp_customer_orders
+GROUP BY TO_CHAR(order_time, 'DAY')
+ORDER BY total_orders DESC;
