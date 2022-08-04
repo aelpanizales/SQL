@@ -1,3 +1,7 @@
+-- In this project, I am working with window functions. I have taken data that I have extracted from kaggle and tested window 
+functions off of the data. The intention of this project to be able to hone my skills on the basics of each window function.
+It will allow me to able to grow and adapt easily to more larger data projects.
+
 SELECT * 
 FROM station;
 
