@@ -1,0 +1,176 @@
+This is a project from Danny Ma Free MasterClass. This is more a personal project to hone in on what I need work on.
+
+> How many US mentors and non US mentors are there? 
+
+SELECT 
+CASE
+	WHEN region != 'United States' THEN 'Non-US'
+    ELSE region
+    END AS mentor_region,
+    COUNT(*) AS mentor_count
+FROM trading.members
+GROUP BY mentor_region
+ORDER BY mentor_count DESC;
+
+| mentor_region | mentor_count |
+| ------------- | ------------ |
+| United States |            7 |
+| Non US        |            7 |
+
+> How many mentors have a first name starting with a letter before `'E'`?
+
+SELECT COUNT(first_name)
+FROM trading.members
+WHERE LEFT(first_name,1) < 'E';
+
+| mentor_count |
+| ------------ |
+|            6 |
+
+What is the average of the `price` column for Bitcoin records during the year 2020?
+
+SELECT AVG(price)
+FROM trading.prices
+WHERE ticker = 'BTC' 
+      AND market_date BETWEEN '2020-01-01' AND '2020-12-31';
+      
+|        avg         |
+| ------------------ |
+| 11111.631147540984 |
+
+> What is the monthly average of the `price` column for Ethereum in 2020? Sort the output in chronological 
+order and also round the average price value to 2 decimal places
+
+SELECT 
+	DATE_FORMAT(market_date, '%Y-%m-01') AS month_start, <-- look to go over date format for MySQL
+    ROUND(AVG(price), 2) AS average_ETH_price
+FROM trading.prices
+WHERE EXTRACT(YEAR from market_date) = 2020
+GROUP BY month_start
+ORDER BY month_start;
+
+|      month_start       | average_eth_price |
+| ---------------------- | ----------------- |
+| 2020-01-01 00:00:00+00 |           4267.73 |
+| 2020-02-01 00:00:00+00 |           4937.66 |
+| 2020-03-01 00:00:00+00 |           3511.64 |
+| 2020-04-01 00:00:00+00 |           3691.16 |
+| 2020-05-01 00:00:00+00 |           4730.50 |
+| 2020-06-01 00:00:00+00 |           4858.88 |
+| 2020-07-01 00:00:00+00 |           4925.83 |
+| 2020-08-01 00:00:00+00 |           6020.07 |
+| 2020-09-01 00:00:00+00 |           5505.55 |
+| 2020-10-01 00:00:00+00 |           6132.07 |
+| 2020-11-01 00:00:00+00 |           8573.75 |
+| 2020-12-01 00:00:00+00 |          11302.20 |
+
+> Are there any duplicate `market_date` values for any `ticker` value in our table?
+
+SELECT ticker, COUNT(market_date) AS total_count, 
+		COUNT(DISTINCT market_date) AS unique_count
+FROM trading.prices
+GROUP BY ticker;
+
+| ticker | total_count | unique_count |
+| ------ | ----------- | ------------ |
+| BTC    |        1702 |         1702 |
+| ETH    |        1702 |         1702 |
+
+> How many days from the `trading.prices` table exist where the `high` price of Bitcoin is over $30,000?
+
+SELECT ticker, COUNT(market_date)
+FROM trading.prices
+WHERE ticker = 'BTC' AND high > 30000;
+
+| row_count |
+| --------- |
+|       240 |
+
+> How many "breakout" days were there in 2020 where the `price` column is greater than the `open` column for each `ticker`?
+
+SELECT ticker, SUM(CASE WHEN price > open THEN 1 ELSE
+    0 END) AS breakout_days
+FROM trading.prices
+WHERE EXTRACT(YEAR from market_date) = 2020
+GROUP BY ticker;
+
+| ticker | breakout_days |
+| ------ | ------------- |
+| BTC    |           207 |
+| ETH    |           200 |
+
+> How many "non_breakout" days were there in 2020 where the `price` column is less than the `open` column for each `ticker`?
+
+SELECT ticker, SUM(CASE WHEN price < open THEN 1 ELSE
+    0 END) AS breakout_days
+FROM trading.prices
+WHERE EXTRACT(YEAR from market_date) = 2020
+GROUP BY ticker;
+
+| ticker | non_breakout_days |
+| ------ | ----------------- |
+| BTC    |               159 |
+| ETH    |               166 |
+
+> What percentage of days in 2020 were breakout days vs non-breakout days? Round the percentages to 2 decimal places?
+
+SELECT ticker, 
+	ROUND(SUM(CASE WHEN price > open THEN 1 ELSE
+    0 END) / COUNT(*),2) as breakout_percentage,
+    ROUND(SUM(CASE WHEN price < open THEN 1 ELSE
+    0 END) / COUNT(*),2) as nonbreakout_percentage
+FROM trading.prices
+WHERE EXTRACT(YEAR from market_date) = 2020
+GROUP BY ticker;
+
+| ticker | breakout_percentage | non_breakout_percentage |
+| ------ | ------------------- | ----------------------- |
+| BTC    |                0.57 |                    0.43 |
+| ETH    |                0.55 |                    0.45 |
+
+> How many buy and sell transactions are there for Bitcoin?
+
+SELECT txn_type, COUNT(*) AS transaction_type
+FROM trading.transactions
+WHERE ticker = 'BTC'
+GROUP BY txn_type;
+
+| txn_type | transaction_count |
+| -------- | ----------------- |
+| SELL     |              6916 |
+| BUY      |              1668 |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
