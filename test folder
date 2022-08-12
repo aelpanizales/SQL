@@ -327,10 +327,65 @@ WITH cte_ranked AS (
 | 45c48c    | 2020-01-01     |   20.21523406425370 |
 | c9f0f8    | 2020-11-01     |  15.931855129247867 |
 
+> What is total value of all Ethereum portfolios for each region at the end date of our analysis? Order the output by descending portfolio value
 
+WITH CTE_latest_price AS (
+	SELECT ticker, price
+  	FROM trading.prices
+  	WHERE ticker = 'ETH'
+  	AND market_date = '2021-08-29'
+  )
+SELECT region, SUM(CASE WHEN tt.txn_type = 'BUY' THEN tt.quantity
+                      WHEN tt.txn_type = 'SELL' THEN -tt.quantity ELSE 0 END) * CTE_latest_price.price AS total_quantity
+FROM trading.transactions tt
+INNER JOIN CTE_latest_price
+ON tt.ticker = CTE_latest_price.ticker
+INNER JOIN trading.members tm
+ON tm.member_id = tt.member_id
+WHERE tt.ticker ='ETH'
+GROUP BY region, CTE_latest_price.price
+ORDER BY 2 DESC;
 
+|    region     |        ethereum_value        |  
+| ------------- | ---------------------------- | 
+| Australia     | 40076021.0922707343527642712 |
+| United States | 50688412.2772532532882719016 |
+| Asia          |  5011670.9776990206825808176 |  
+| India         |   6276426.482786365114210656 |  
+| Africa        |  2183933.3382704268238606128 |  
 
+> What is the average value of each Ethereum portfolio in each region? Sort this output in descending order
 
+WITH CTE_latest_price AS (
+	SELECT ticker, price
+  	FROM trading.prices
+  	WHERE ticker = 'ETH'
+  	AND market_date = '2021-08-29'
+  ),
+CTE_calculations AS (
+  	SELECT region, SUM(CASE WHEN tt.txn_type = 'BUY' THEN tt.quantity
+        WHEN tt.txn_type = 'SELL' THEN -tt.quantity ELSE 0 END) * CTE_latest_price.price AS eth_value,
+  	COUNT(DISTINCT tm.member_id) AS mentor_count
+        FROM trading.transactions tt
+        INNER JOIN CTE_latest_price
+        ON tt.ticker = CTE_latest_price.ticker
+        INNER JOIN trading.members tm
+        ON tm.member_id = tt.member_id
+        WHERE tt.ticker ='ETH'
+        GROUP BY region, CTE_latest_price.price
+        ORDER BY 2 DESC
+  )
+  SELECT *, eth_value / mentor_count AS avg_eth_value
+  FROM CTE_calculations
+  ORDER BY 2 DESC;
+  
+|    region     |        ethereum_value        | mentor_count |      avg_ethereum_value      |
+| ------------- | ---------------------------- | ------------ | ---------------------------- |
+| Australia     | 40076021.0922707343527642712 |            4 | 10019005.2730676835881910678 |
+| United States | 50688412.2772532532882719016 |            7 |  7241201.7538933218983245574 |
+| India         |   6276426.482786365114210656 |            1 |   6276426.482786365114210656 |
+| Asia          |  5011670.9776990206825808176 |            1 |  5011670.9776990206825808176 |
+| Africa        |  2183933.3382704268238606128 |            1 |  2183933.3382704268238606128 |
 
 
 
