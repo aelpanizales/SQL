@@ -1,0 +1,54 @@
+In this project, I have pulled a dataset from Kaggle (https://www.kaggle.com/datasets/kartik2112/fraud-detection) to work on. My 
+purpose of this project is to see if I can identify a reoccuring pattern to be able to pinpoint the cause for fraud activity.
+
+Which merchants are seeing the most cases of fraud activity? 
+
+SELECT merchant, COUNT(is_fraud)
+FROM fraudtrain
+WHERE is_fraud = 1
+GROUP BY merchant
+ORDER BY 2 DESC;
+
+What is the most recent fraud transaction?
+
+SELECT *
+FROM fraudtrain
+WHERE is_fraud = 1
+ORDER BY trans_date_trans_time DESC;
+
+Pull up the most last 10 transanctions of the customer whose recent transaction was flagged as fraud? 
+
+SELECT *
+FROM fraudtrain
+WHERE first = 'William' AND last = 'Perry'
+ORDER BY trans_date_trans_time DESC
+LIMIT 10;
+
+Upon pulling up William Perrys information, I noticed that, there were two similar purchases made within 2 hours of eachother. But due to the lack of
+merchant location, it was difficult for me locate the exact location of each transaction. It is possible that the transsaction was deemed fraud for a potential 
+inconsistent geo location pings.
+
+Using this same simple format above I will take a look another cusomters whos transaction was flagged as fraud
+
+WITH CTE_ashley AS
+(
+SELECT * 
+FROM fraudtrain
+WHERE first = 'Ashley' AND last = 'Cabrera'
+)
+SELECT merchant, AVG(amt) AS avgspend
+FROM CTE_ashley
+WHERE merchant = 'fraud_Kassulke PLC' AND is_fraud = 0
+
+Taking a look at Ashley typical spend at each store respectively at Kassulke her average spend is $130.13 and at Schumm her average spend is $18.14
+Her recent 2 transactions are well abover her average spend.
+
+SELECT merchant, AVG(amt) AS avgspend
+FROM fraudtrain
+WHERE merchant = 'fraud_Schumm PLC' OR merchant = 'fraud_Kassulke PLC'
+GROUP BY merchant
+
+Upon looking at the average spend overall at both stores. Typically customer spend $82.47 at Kassulke and $70.51 at Schumm
+This data can also support that the recent spend at the store is not normal.
+
+Further investigation would be needed and confirmed with the customer to confirm authortizaton of payment.
