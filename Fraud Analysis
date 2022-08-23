@@ -52,3 +52,58 @@ Upon looking at the average spend overall at both stores. Typically customer spe
 This data can also support that the recent spend at the store is not normal.
 
 Further investigation would be needed and confirmed with the customer to confirm authortizaton of payment.
+
+Is there a relationship between fraud counts and job? 
+
+SELECT job, COUNT(is_fraud)
+FROM fraudtrain
+WHERE is_fraud = 1
+GROUP BY 1
+ORDER BY 2 DESC;
+
+Without knowing the actaul pay range for each job, I decided to look at each 'Material Engineer' where fraud has been 
+noted for their typical spend to get a good barometer of job salary expectations.
+
+Here we have 6 clients who has been affected by fraud.
+
+SELECT first, last, COUNT(is_fraud)
+FROM fraudtrain
+WHERE job = 'Materials engineer' AND is_fraud = 1
+GROUP BY 1,2
+ORDER BY 3;
+
+This statement shows the average spend and range of spend for the 6 clients affected by fraud.
+
+SELECT first, last, AVG(amt), MAX(amt), MIN(amt)
+FROM fraudtrain
+WHERE job = 'Materials engineer' AND is_fraud != 1
+GROUP BY 1,2
+ORDER BY 3;
+
+What category sees the most fraud transanction?
+
+SELECT category, COUNT(is_fraud) 
+FROM fraudtrain
+WHERE is_fraud = 1
+GROUP BY 1
+ORDER BY 2 DESC;
+
+Upon pulling the data of I took the most recent fraud transanction from that category.
+The customer that had experience the most recent fraud transanction from the Grocery category,
+Has seen a large sum of money spent in 1 day. Looking at previous spending patterns. These transanctions
+do seem to be out of the ordinary. Further investigation would be needed as the customers CC seems to have been
+comprised.
+
+trans_date_trans_time	   cc_num	          merchant	                              category	      amt	      first	  last
+2020-06-20 23:40:26	     6564459919350820	fraud_Johnson, Runolfsdottir and Mayer	misc_net	      725.6	    Douglas	Willis
+2020-06-20 23:17:07	     6564459919350820	fraud_Strosin-Cruickshank	              grocery_pos	    307.71	  Douglas	Willis
+2020-06-20 22:28:18	     6564459919350820	fraud_Hamill-Daugherty	                misc_net	      735.19	  Douglas	Willis
+2020-06-20 18:12:40	     6564459919350820	fraud_Kerluke-Abshire                 	shopping_net	  965.05	  Douglas	Willis
+2020-06-20 16:32:01	     6564459919350820	fraud_Mosciski, Ziemann and Farrell	    shopping_net	  1006.48	  Douglas	Willis
+2020-06-19 20:13:29	     6564459919350820	fraud_Bahringer Group	                  health_fitness	16.24	    Douglas	Willis
+2020-06-19 15:11:03	     6564459919350820	fraud_Lynch-Wisozk	                    home	          15.14	    Douglas	Willis
+2020-06-19 09:35:10	     6564459919350820	fraud_Kerluke PLC	                      misc_net	      236.72	  Douglas	Willis
+2020-06-16 22:10:20	     6564459919350820	fraud_Parker-Kunde	                    personal_care	  143.47	  Douglas	Willis
+2020-06-16 00:05:07	     6564459919350820	fraud_Reilly, Heaney and Cole	          gas_transport	  35.13	    Douglas	Willis
+
+
