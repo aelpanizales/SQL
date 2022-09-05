@@ -1,0 +1,136 @@
+This is a mental health dataset that I have sourced from Kaggle. I am using this dataset to be able to extract information 
+regarding the clients concerns about how certain participants feel about there mental health
+
+This would be able to provide employers with certain concerns where they would be able to accomadate employees with a
+mental illness and how they can provide the support they will need.
+
+First I will group each response by age group for those who have taken the survery in 2016 (Children, Youth, Adult, Seniors)
+
+SELECT *,
+    CASE WHEN AnswerText BETWEEN 1 AND 14 THEN 'Children'
+         WHEN AnswerText BETWEEN 15 AND 24 THEN 'Youth'
+         WHEN AnswerText BETWEEN 25 AND 64 THEN 'Adult'
+         ELSE 'Seniors' END AS agegroup
+FROM Answer A
+JOIN Question Q
+ON A.QuestionID = Q.questionid
+WHERE Q.questionid = 1 AND SurveyID = 2016
+
+Then I want to identify how many participents were there per age group to see which age groups are more active.
+
+WITH agegroup AS (
+SELECT *,
+    CASE WHEN AnswerText BETWEEN 1 AND 14 THEN 'Children'
+         WHEN AnswerText BETWEEN 15 AND 24 THEN 'Youth'
+         WHEN AnswerText BETWEEN 25 AND 64 THEN 'Adult'
+         ELSE 'Seniors' END AS agegroup
+FROM Answer A
+JOIN Question Q
+ON A.QuestionID = Q.questionid
+WHERE Q.questionid = 1 AND SurveyID = 2016
+)
+SELECT agegroup, COUNT(agegroup) AS ClientPerAgeGroup
+FROM agegroup
+GROUP BY agegroup 
+ORDER BY 2;
+
+The next question asks for there gender. I will get the age group per participant
+
+WITH gender AS (
+SELECT questiontext, AnswerText,UserId
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE q.questionid = 2 AND SurveyID = 2016
+)
+SELECT g.questiontext, g.AnswerText,
+      CASE WHEN a.AnswerText BETWEEN 1 AND 14 THEN 'Children'
+         WHEN a.AnswerText BETWEEN 15 AND 24 THEN 'Youth'
+         WHEN a.AnswerText BETWEEN 25 AND 64 THEN 'Adult'
+         ELSE 'Seniors' END AS agegroup
+FROM gender g
+JOIN Answer a
+ON g.UserId = a.UserId
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE q.questionid = 1;
+
+Now I want to visualize the locations of where the participants are located
+
+WITH location AS (
+SELECT AnswerText AS city, UserID
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE a.SurveyID = 2016 AND q.questionid = 4
+ORDER BY a.UserID
+)
+SELECT a.AnswerText, city
+FROM location l
+JOIN Answer a
+ON l.UserID = a.UserID
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE q.questionid = 3
+ORDER BY a.UserId;
+
+I want to know what mental conditions users are currently diagnosed with
+
+SELECT a.UserID, a.AnswerText,  
+        ROW_NUMBER() OVER(PARTITION BY a.UserID)
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE a.SurveyID = 2016 AND q.questionid = 115
+
+In order to create a good representation of the data, I am trying to organize the data so that the questions are 
+represented in columns insttead of rows
+
+WITH age as (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 1
+),
+gender AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 2
+),
+country AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 3
+),
+benefits AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 10
+),
+anonymity AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 11
+)
+SELECT a.UserID, a.AnswerText AS age, g.AnswerText AS gender, 
+    c.Answertext AS country, b.AnswerText AS benefits,
+    anon.AnswerText AS anonymity
+FROM age a
+JOIN gender g
+ON a.UserID = g.UserID
+JOIN country c
+ON a.UserID = c.UserID
+JOIN benefits b
+ON a.UserID = b.UserID
+JOIN anonymity anon
+ON a.UserID = anon.UserID;
+
