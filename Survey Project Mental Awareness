@@ -191,3 +191,8 @@ ON a.UserID = i.UserID
 JOIN medicalleave ml
 ON a.UserID = ml.UserID;
 
+I put this data into tableau to allow for a visiual representation of the data that was collected.
+In the visiualization you can quickly see what areas companies are doing well in and the area
+improvements can be made.
+
+https://public.tableau.com/app/profile/aelp/viz/HealthSurvey_16624426168180/Dashboard1?publish=yes
