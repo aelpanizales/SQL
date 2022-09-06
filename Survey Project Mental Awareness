@@ -120,10 +120,55 @@ FROM Answer a
 JOIN Question q
 ON a.QuestionID = q.questionid
 WHERE SurveyID = 2016 AND q.questionid = 11
+),
+options AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 14
+),
+discussed AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 15
+),
+offers AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 16
+),
+supervisorhelp AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 19
+),
+interview AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 12
+),
+medicalleave AS (
+SELECT a.UserID, a.AnswerText
+FROM Answer a
+JOIN Question q
+ON a.QuestionID = q.questionid
+WHERE SurveyID = 2016 AND q.questionid = 17
 )
 SELECT a.UserID, a.AnswerText AS age, g.AnswerText AS gender, 
     c.Answertext AS country, b.AnswerText AS benefits,
-    anon.AnswerText AS anonymity
+    anon.AnswerText AS anonymity, o.AnswerText AS options,
+    d.AnswerText AS discussed, off.AnswerText AS offers,
+    sh.AnswerText AS supervisorhelp, i.AnswerText AS interview,
+    ml.AnswerText AS medicalleave
 FROM age a
 JOIN gender g
 ON a.UserID = g.UserID
@@ -132,5 +177,17 @@ ON a.UserID = c.UserID
 JOIN benefits b
 ON a.UserID = b.UserID
 JOIN anonymity anon
-ON a.UserID = anon.UserID;
+ON a.UserID = anon.UserID
+JOIN options o
+ON a.UserID = o.UserID
+JOIN discussed d
+ON a.UserID = d.UserID
+JOIN offers off
+ON a.UserID = off.UserID
+JOIN supervisorhelp sh
+ON a.UserID = sh.UserID
+JOIN interview i
+ON a.UserID = i.UserID
+JOIN medicalleave ml
+ON a.UserID = ml.UserID;
 
