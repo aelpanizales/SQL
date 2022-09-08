@@ -1,0 +1,37 @@
+My process my cleaning tables 
+
+Identify any duplicates
+
+SELECT Income, Age, Experience, MaritalStatus, House_Ownership, Car_Ownership, Profession,
+    COUNT(*) AS cnt
+FROM loan
+GROUP BY 1,2,3,4,5,6,7
+HAVING COUNT(*) > 1
+
+SELECT *
+FROM loan
+WHERE Id NOT IN (
+    SELECT MAX(ID)
+    FROM loan
+    GROUP BY Income, Age, Experience, MaritalStatus, House_Ownership, Car_Ownership, Profession
+)
+
+Deleteing Duplicates
+
+DELETE 
+FROM loan
+WHERE Id NOT IN (
+    SELECT MAX(ID)
+    FROM loan
+    GROUP BY Income, Age, Experience, MaritalStatus, House_Ownership, Car_Ownership, Profession
+)
+
+Testing to see if duplicates still remain
+
+SELECT Income, Age, Experience, MaritalStatus, House_Ownership, Car_Ownership, Profession,
+    COUNT(*) AS cnt
+FROM loan
+GROUP BY 1,2,3,4,5,6,7
+HAVING COUNT(*) > 1
+
+IF 0 remain duplicates have been succesfully removed
